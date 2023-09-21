@@ -1,18 +1,27 @@
+import { useEffect, useState } from 'react';
 import { Form } from '../components/Form'
 import { useAppContext } from "../context/AppContext"
 
 export function Modal() {
+  const [invalidInputs, setInvalidInputs] = useState(false);
+  const { createMove, setFormData, formData } = useAppContext();
 
-  const { createMove, setFormData } = useAppContext();
-
-  const handleOnSubmit = () => {
-    createMove();
-    setFormData({
-      name: '',
-      mount: '',
-      type: 'ingreso'
-    })
+  const handleOnSubmit = async () => {
+    if(invalidInputs === false) {
+      createMove();
+      setFormData({
+        name: '',
+        mount: '',
+        type: 'ingreso'
+      })
+    }
   }
+
+  useEffect(() => {
+    for(let key in formData) {
+      if(formData[key].length <= 0) setInvalidInputs(true); 
+    }
+  }, [formData])
 
   return(
     <>
@@ -32,13 +41,13 @@ export function Modal() {
             </div>
 
             <div className="modal-body">
-              <Form/>
+              <Form handleInvalidInputs={setInvalidInputs}/>
             </div>
 
             <div className="modal-footer">
               <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
               <button 
-                data-bs-dismiss="modal"
+                data-bs-dismiss={`${invalidInputs ? null : 'modal'}`}
                 type="button" 
                 className="btn btn-primary"
                 onClick={handleOnSubmit}
